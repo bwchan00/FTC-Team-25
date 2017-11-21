@@ -29,15 +29,13 @@ public class VioletConstants
     public static double S4_OPEN   = 10 / SERVO_DOMAIN;
     public static double S4_CLOSED = 140  / SERVO_DOMAIN;
 
-    //public static int DEGREES_180 = 790; (Breanna and Cindy)
     //public static int DEGREES_180_CLOCKWISE = 375;
     //public static int DEGREES_180_COUNTERCLOCKWISE = 400;
     public static int DEGREES_180 = 375;
-    //public static int NUDGE = 25; (Breanna and Cindy)
     public static int NUDGE = 15;
     public static int CLAW_VERTICAL = 400;
     public static double NUDGE_POWER = 0.1;
     public static double ROTATE_POWER = 0.3;
-    //public static double CLAW_VERTICAL_POWER = 0.75;
-    public static double CLAW_VERTICAL_POWER = 0.5;
+    public static double CLAW_VERTICAL_POWER = 0.75;
+    // put on actual teleop in order to be able to change power in certain instances
 }

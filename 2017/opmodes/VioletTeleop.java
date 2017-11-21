@@ -15,6 +15,8 @@ import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.RunToEncoderValueTask;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+
 /**
  * FTC Team 25: Created by Elizabeth Wu on 11/1/17.
  */
@@ -114,24 +116,32 @@ public class VioletTeleop extends Robot {
         rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        linear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         drivetrain = new FourWheelDirectDrivetrain(frontRight, rearRight, frontLeft, rearLeft);
 
         openClaw();
-        linear.setDirection(DcMotorSimple.Direction.FORWARD);
+        //linear.setDirection(DcMotorSimple.Direction.FORWARD);
+        linear.setZeroPowerBehavior(BRAKE);
     }
 
     /**
-     * Move claw up and down, making sure we don't over rotate.
+     * Move claw up, making sure we don't over rotate.
      */
-    private void toggleClawVertical()
+    private void toggleClawUp()
     {
         linear.setDirection(DcMotorSimple.Direction.FORWARD);
 
-       // }//else {
-          //linear.setDirection(DcMotorSimple.Direction.REVERSE);
-            //clawDown = true;
-        //}
+        this.addTask(new RunToEncoderValueTask(this, linear, VioletConstants.CLAW_VERTICAL, VioletConstants.CLAW_VERTICAL_POWER));
+    }
+    /**
+     * Move claw down, making sure we don't over rotate.
+     */
+    private void toggleClawDown()
+    {
+        linear.setDirection(DcMotorSimple.Direction.REVERSE);
+
         this.addTask(new RunToEncoderValueTask(this, linear, VioletConstants.CLAW_VERTICAL, VioletConstants.CLAW_VERTICAL_POWER));
     }
 
@@ -222,7 +232,7 @@ public class VioletTeleop extends Robot {
         drive = new MecanumWheelDriveTask(this, frontLeft, frontRight, rearLeft, rearRight);
         controlLinear = new OneWheelDriveTask(this, linear, true);
         this.addTask(drive);
-        this.addTask(controlLinear);
+        //this.addTask(controlLinear);
 
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_2) {
             public void handleEvent(RobotEvent e) {
@@ -235,52 +245,45 @@ public class VioletTeleop extends Robot {
                     return;
                 }
 
-                switch (event.kind) {
-                    case BUTTON_Y_DOWN:
-                        //Lifts glyph mechanism up
+                if (event.kind == EventKind.BUTTON_Y_DOWN) {
+                    //Lifts glyph mechanism up
 
-                        //toggleClawVertical();
-                        linear.setPower(VioletConstants.CLAW_VERTICAL_POWER);
-                        break;
-                    case BUTTON_A_DOWN:
-                        //Open all claw servos
+                    toggleClawUp();
+                    linear.setPower(VioletConstants.CLAW_VERTICAL_POWER);
+                } else if (event.kind == EventKind.BUTTON_A_DOWN) {
+                    //Lowers glyph mechanism
 
-                        openClaw();
-                        break;
-                    case LEFT_BUMPER_DOWN:
-                        //Toggle s1/s2
+                    toggleClawDown();
+                    linear.setPower(VioletConstants.CLAW_VERTICAL_POWER);
+                    //openClaw();
+                } else if (event.kind == EventKind.LEFT_BUMPER_DOWN) {
+                    //Toggle s1/s2
 
-                        toggleS1();
-                        break;
-                    case RIGHT_BUMPER_DOWN:
+                    toggleS1();
+                } else if (event.kind == EventKind.RIGHT_BUMPER_DOWN) {
                         //Toggle s3/s4
 
                         toggleS3();
-                        break;
-                    case BUTTON_B_DOWN:
+                } else if (event.kind == EventKind.BUTTON_B_DOWN) {
                         //Rotate 180 degrees clockwise looking from behind robot
 
                         lockout = true;
                         rotate(Direction.CLOCKWISE);
-                        break;
-                    case BUTTON_X_DOWN:
+                } else if (event.kind == EventKind.BUTTON_X_DOWN) {
                         // Rotate 180 degrees counterclockwise looking from behind robot
 
                         lockout = true;
                         rotate(Direction.COUNTERCLOCKWISE);
-                        break;
-                    case LEFT_TRIGGER_DOWN:
+                } else if (event.kind == EventKind.LEFT_TRIGGER_DOWN) {
                         //Nudge counterclockwise looking from behind robot
 
                         lockout = true;
                         nudge(Direction.COUNTERCLOCKWISE);
-                        break;
-                    case RIGHT_TRIGGER_DOWN:
-                        //Nudge clockwise looking from behind robot
+                } else if (event.kind == EventKind.RIGHT_TRIGGER_DOWN) {
+                    //Nudge clockwise looking from behind robot
 
-                        lockout = true;
-                        nudge(Direction.CLOCKWISE);
-                        break;
+                    lockout = true;
+                    nudge(Direction.CLOCKWISE);
                 }
             }
         });
