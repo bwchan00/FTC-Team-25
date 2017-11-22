@@ -28,6 +28,7 @@ public class VioletConstants
     public static double S3_CLOSED = 85  / SERVO_DOMAIN;
     public static double S4_OPEN   = 10 / SERVO_DOMAIN;
     public static double S4_CLOSED = 140  / SERVO_DOMAIN;
+    public static double JEWEL_INIT = 145 / SERVO_DOMAIN;
 
     //public static int DEGREES_180_CLOCKWISE = 375;
     //public static int DEGREES_180_COUNTERCLOCKWISE = 400;

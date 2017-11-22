@@ -20,7 +20,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 /**
  * FTC Team 25: Created by Elizabeth Wu on 11/1/17.
  */
-@TeleOp(name = "VioletConstants Teleop", group = "Team25")
+@TeleOp(name = "Violet Teleop", group = "Team25")
 public class VioletTeleop extends Robot {
 
      /*
@@ -64,7 +64,7 @@ public class VioletTeleop extends Robot {
     private Servo s4;
     private Servo s1;
     private Servo s3;
-    //private Servo jewel;
+    private Servo jewel;
     //private Servo relic;
 
     private FourWheelDirectDrivetrain drivetrain;
@@ -104,8 +104,11 @@ public class VioletTeleop extends Robot {
         s4    = hardwareMap.servo.get("s4");
         s1    = hardwareMap.servo.get("s1");
         s3    = hardwareMap.servo.get("s3");
-        //jewel       = hardwareMap.servo.get("jewel");
+        jewel       = hardwareMap.servo.get("jewel");
         //relic       = hardwareMap.servo.get("relic");
+
+        // Sets position of jewel for teleop
+        jewel.setPosition(VioletConstants.JEWEL_INIT);
 
         // Reset encoders.
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -122,7 +125,6 @@ public class VioletTeleop extends Robot {
         drivetrain = new FourWheelDirectDrivetrain(frontRight, rearRight, frontLeft, rearLeft);
 
         openClaw();
-        //linear.setDirection(DcMotorSimple.Direction.FORWARD);
         linear.setZeroPowerBehavior(BRAKE);
     }
 
