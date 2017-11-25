@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 import team25core.FourWheelDirectDrivetrain;
 import team25core.GamepadTask;
 import team25core.MecanumWheelDriveTask;
-//import team25core.OneWheelDriveTask;
+import team25core.OneWheelDriveTask;
 import team25core.Robot;
 import team25core.RobotEvent;
 import team25core.RunToEncoderValueTask;
@@ -66,7 +66,8 @@ public class VioletTeleop extends Robot {
 
     private FourWheelDirectDrivetrain drivetrain;
     private MecanumWheelDriveTask drive;
-    //private OneWheelDriveTask controlLinear;
+    private OneWheelDriveTask controlLinear;
+    private OneWheelDriveTask controlSlide;
 
     //private boolean clawDown = true;
     private boolean s1Open = true;
@@ -118,19 +119,22 @@ public class VioletTeleop extends Robot {
         rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rearRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rotate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         linear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Allows for rotate, linear, and slide motor to hold position when no button is pressed
+        rotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        linear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         drivetrain = new FourWheelDirectDrivetrain(frontRight, rearRight, frontLeft, rearLeft);
 
         // Sets claw servos to open position
         openClaw();
-
-        // Allows for linear and slide motor to hold position when no button is pressed
-        linear.setZeroPowerBehavior(BRAKE);
-        slide.setZeroPowerBehavior(BRAKE);
     }
 
     /**
@@ -215,7 +219,7 @@ public class VioletTeleop extends Robot {
             rotate.setDirection(DcMotorSimple.Direction.FORWARD);
             distance = VioletConstants.DEGREES_180;
         }
-        this.addTask(new RunToEncoderValueTask(this, rotate, distance, VioletConstants.ROTATE_POWER));
+        this.addTask(new RunToEncoderValueTask(this, rotate, VioletConstants.DEGREES_180, VioletConstants.ROTATE_POWER));
     }
 
     /**
@@ -271,13 +275,15 @@ public class VioletTeleop extends Robot {
     public void start()
     {
         drive = new MecanumWheelDriveTask(this, frontLeft, frontRight, rearLeft, rearRight);
-        //controlLinear = new OneWheelDriveTask(this, linear, true);
+        controlLinear = new OneWheelDriveTask(this, linear, true);
+        controlSlide = new OneWheelDriveTask(this, slide, false);
         this.addTask(drive);
-        //this.addTask(controlLinear);
+        this.addTask(controlLinear);
+        this.addTask(controlSlide);
 
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_2) {
             public void handleEvent(RobotEvent e) {
-                GamepadTask.GamepadEvent event = (GamepadTask.GamepadEvent) e;
+                GamepadEvent event = (GamepadEvent) e;
 
 
                 // Finish a move before we allow another one.
@@ -331,14 +337,8 @@ public class VioletTeleop extends Robot {
 
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_1) {
             public void handleEvent(RobotEvent e) {
-                GamepadTask.GamepadEvent event = (GamepadTask.GamepadEvent) e;
+                GamepadEvent event = (GamepadEvent) e;
 
-
-                // Finish a move before we allow another one.
-
-                if (lockout == true) {
-                    return;
-                }
 
                 if (event.kind == EventKind.LEFT_BUMPER_DOWN) {
                     // Extends relic mechanism
