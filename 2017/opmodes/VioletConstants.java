@@ -30,8 +30,10 @@ public class VioletConstants
     public static double S4_CLOSED    = 140  / SERVO_DOMAIN;
     public static double JEWEL_INIT   = 145 / SERVO_DOMAIN;
     // Hesitant initial values. Will have to calibrate servo later.
-    public static double RELIC_OPEN   = 10 / SERVO_DOMAIN;
-    public static double RELIC_CLOSED = 150 / SERVO_DOMAIN;
+    public static double RELIC_OPEN   = 100 / SERVO_DOMAIN;
+    public static double RELIC_CLOSED = 170 / SERVO_DOMAIN;
+    public static double RELIC_ROTATE_DOWN = 128 / SERVO_DOMAIN;
+    public static double RELIC_ROTATE_UP = 131 / SERVO_DOMAIN;
 
     //public static int DEGREES_180_CLOCKWISE = 375;
     //public static int DEGREES_180_COUNTERCLOCKWISE = 400;

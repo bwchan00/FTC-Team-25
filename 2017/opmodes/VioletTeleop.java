@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import team25core.FourWheelDirectDrivetrain;
 import team25core.GamepadTask;
 import team25core.MecanumWheelDriveTask;
@@ -27,19 +29,19 @@ public class VioletTeleop extends Robot {
 
     GAMEPAD 1: DRIVETRAIN CONTROLLER
     --------------------------------------------------------------------------------------------
-      (L trigger)        (R trigger)    |  // FOR FUTURE..needs to be programmed
-                                        |  (LT) bward left diagonal    (RT) bward right diagonal
+      (L trigger)        (R trigger)    |  (LT) bward left diagonal    (RT) bward right diagonal                                        |
       (L bumper)         (R bumper)     |  (LB) fward left diagonal    (RB) fward right diagonal
-                            (y)         |
-      arrow pad          (x)   (b)      |
-                            (a)         |
+                            (y)         |   (y) toggle slowness
+      arrow pad          (x)   (b)      |   (x) toggle relic servo      (b) rotate relic
+                            (a)         |   (a)
+                                        |   (DPad - UP) extend relic   (DPad - DOWN) bring relic in
 
     GAMEPAD 2: MECHANISM CONTROLLER
     --------------------------------------------------------------------------------------------
-      (L trigger)        (R trigger)    | (LT) rotate block left      (RT) lower relic holder
-      (L bumper)         (R bumper)     | (LB) rotate block right     (RB) raise relic holder
+      (L trigger)        (R trigger)    | (LT) nudge block left       (RT) nudge block right
+      (L bumper)         (R bumper)     | (LB) toggle servos 1/2      (RB) toggle servos 3/4
                             (y)         |  (y)
-      arrow pad          (x)   (b)      |  (b)
+      arrow pad          (x)   (b)      |  (x) rotate block left      (b) rotate block right
                             (a)         |  (a)
 
     */
@@ -63,16 +65,20 @@ public class VioletTeleop extends Robot {
     private Servo s3;
     private Servo jewel;
     private Servo relic;
+    private Servo relicRotate;
 
     private FourWheelDirectDrivetrain drivetrain;
     private MecanumWheelDriveTask drive;
     private OneWheelDriveTask controlLinear;
     private OneWheelDriveTask controlSlide;
 
+    private boolean slow;
     //private boolean clawDown = true;
-    private boolean s1Open = true;
-    private boolean s3Open = true;
-    private boolean relicOpen = true;
+    private boolean s1Open;
+    private boolean s3Open;
+    private boolean relicOpen;
+    private boolean relicDown;
+    private Telemetry.Item speed;
 
     private boolean lockout = false;
 
@@ -106,6 +112,7 @@ public class VioletTeleop extends Robot {
         s3    = hardwareMap.servo.get("s3");
         jewel       = hardwareMap.servo.get("jewel");
         relic       = hardwareMap.servo.get("relic");
+        relicRotate = hardwareMap.servo.get("relicRotate");
 
         // Sets position of jewel for teleop
         jewel.setPosition(VioletConstants.JEWEL_INIT);
@@ -258,16 +265,30 @@ public class VioletTeleop extends Robot {
     }
 
     /**
-     * Opens and closes relic servo.
+     * Opens and closes relic claw servo.
      */
     private void toggleRelic()
     {
         if (relicOpen == true) {
             relic.setPosition(VioletConstants.RELIC_CLOSED);
-            relicOpen= false;
+            relicOpen = false;
         } else {
             relic.setPosition(VioletConstants.RELIC_OPEN);
             relicOpen = true;
+        }
+    }
+
+    /**
+     * Rotates relic rotate servo. NEED TO FIGURE OUT.
+     */
+    private void rotateRelic()
+    {
+        if (relicDown == true) {
+            relicRotate.setPosition(VioletConstants.RELIC_ROTATE_DOWN);
+            relicOpen= false;
+        } else {
+            relicRotate.setPosition(VioletConstants.RELIC_ROTATE_UP);
+            relicDown = true;
         }
     }
 
@@ -275,11 +296,13 @@ public class VioletTeleop extends Robot {
     public void start()
     {
         drive = new MecanumWheelDriveTask(this, frontLeft, frontRight, rearLeft, rearRight);
+        // Left joystick (Gamepad 2) controls lifting and lowers of glyph mechanism
         controlLinear = new OneWheelDriveTask(this, linear, true);
-        controlSlide = new OneWheelDriveTask(this, slide, false);
+        // Right joystick (Gamepad 2) controls extending and contracting of relic mechanism
+        //controlSlide = new OneWheelDriveTask(this, slide, false);
         this.addTask(drive);
         this.addTask(controlLinear);
-        this.addTask(controlSlide);
+        //this.addTask(controlSlide);
 
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_2) {
             public void handleEvent(RobotEvent e) {
@@ -340,19 +363,35 @@ public class VioletTeleop extends Robot {
                 GamepadEvent event = (GamepadEvent) e;
 
 
-                if (event.kind == EventKind.LEFT_BUMPER_DOWN) {
+                if (event.kind == EventKind.DPAD_UP_DOWN) {
                     // Extends relic mechanism
 
                     extendRelic();
                     slide.setPower(VioletConstants.RELIC_HORIZONTAL_POWER);
-                } else if (event.kind == EventKind.RIGHT_BUMPER_DOWN) {
+                } else if (event.kind == EventKind.DPAD_DOWN_DOWN) {
                     // Brings relic mechanism back in
 
                     contractRelic();
-                } else if (event.kind == EventKind.BUTTON_B_DOWN) {
+                } else if (event.kind == EventKind.BUTTON_X_DOWN) {
                     // Toggle relic servo
 
                     toggleRelic();
+                } else if (event.kind == EventKind.BUTTON_B_DOWN) {
+                    // Rotate relic
+
+                    rotateRelic();
+                } else if (event.kind == EventKind.BUTTON_Y_DOWN) {
+                    // Toggles slowness of motors
+
+                    if (!slow) {
+                        drive.slowDown(0.3);
+                        slow = true;
+                        speed = telemetry.addData("SLOW", "true");
+                    } else {
+                        drive.slowDown(false);
+                        slow = false;
+                        speed = telemetry.addData("SLOW", "false");
+                    }
                 }
             }
         });
