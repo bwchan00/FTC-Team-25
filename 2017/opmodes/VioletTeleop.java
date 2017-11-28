@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import team25core.DeadmanMotorTask;
 import team25core.FourWheelDirectDrivetrain;
 import team25core.GamepadTask;
 import team25core.MecanumWheelDriveTask;
@@ -70,7 +71,9 @@ public class VioletTeleop extends Robot {
     private FourWheelDirectDrivetrain drivetrain;
     private MecanumWheelDriveTask drive;
     private OneWheelDriveTask controlLinear;
-    private OneWheelDriveTask controlSlide;
+    //private OneWheelDriveTask controlSlide;
+    private DeadmanMotorTask runSlideOutTask;
+    private DeadmanMotorTask runSlideInTask;
 
     private boolean slow;
     //private boolean clawDown = true;
@@ -117,6 +120,9 @@ public class VioletTeleop extends Robot {
         // Sets position of jewel for teleop
         jewel.setPosition(VioletConstants.JEWEL_INIT);
 
+        runSlideOutTask = new DeadmanMotorTask(this, slide, 0.75, GamepadTask.GamepadNumber.GAMEPAD_2, DeadmanMotorTask.DeadmanButton.BUTTON_Y);
+        runSlideInTask = new DeadmanMotorTask(this, slide, -0.75, GamepadTask.GamepadNumber.GAMEPAD_2, DeadmanMotorTask.DeadmanButton.BUTTON_A);
+
         // Reset encoders.
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -130,8 +136,8 @@ public class VioletTeleop extends Robot {
         rotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         linear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Allows for rotate, linear, and slide motor to hold position when no button is pressed
         rotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -303,6 +309,8 @@ public class VioletTeleop extends Robot {
         this.addTask(drive);
         this.addTask(controlLinear);
         //this.addTask(controlSlide);
+        this.addTask(runSlideOutTask);
+        this.addTask(runSlideInTask);
 
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_2) {
             public void handleEvent(RobotEvent e) {
@@ -315,18 +323,7 @@ public class VioletTeleop extends Robot {
                     return;
                 }
 
-                if (event.kind == EventKind.BUTTON_Y_DOWN) {
-                    // Lifts glyph mechanism
-
-                    toggleClawUp();
-                    linear.setPower(VioletConstants.CLAW_VERTICAL_POWER);
-                } else if (event.kind == EventKind.BUTTON_A_DOWN) {
-                    // Lowers glyph mechanism
-
-                    toggleClawDown();
-                    linear.setPower(VioletConstants.CLAW_VERTICAL_POWER);
-                    //openClaw();
-                } else if (event.kind == EventKind.LEFT_BUMPER_DOWN) {
+                if (event.kind == EventKind.LEFT_BUMPER_DOWN) {
                     // Toggle s1/s2
 
                     toggleS1();
@@ -354,7 +351,18 @@ public class VioletTeleop extends Robot {
 
                     lockout = true;
                     nudge(Direction.CLOCKWISE);
-                }
+                } //else if (event.kind == EventKind.BUTTON_Y_DOWN) {
+                    // Lifts glyph mechanism
+
+                    //toggleClawUp();
+                    //linear.setPower(VioletConstants.CLAW_VERTICAL_POWER);
+                //} else if (event.kind == EventKind.BUTTON_A_DOWN) {
+                    // Lowers glyph mechanism
+
+                    //toggleClawDown();
+                    //linear.setPower(VioletConstants.CLAW_VERTICAL_POWER);
+                    //openClaw();
+                //}
             }
         });
 
@@ -373,7 +381,7 @@ public class VioletTeleop extends Robot {
 
                     contractRelic();
                 } else if (event.kind == EventKind.BUTTON_X_DOWN) {
-                    // Toggle relic servo
+                    // Toggle relic claw servo
 
                     toggleRelic();
                 } else if (event.kind == EventKind.BUTTON_B_DOWN) {
