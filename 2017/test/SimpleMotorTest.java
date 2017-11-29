@@ -12,7 +12,7 @@ import team25core.RobotEvent;
 /**
  * Created by jeffb on 10/8/2016.
  */
-@Autonomous(name="Simple Motor Test", group="Team 25")
+@Autonomous(name="Simple Motor Test: rotate", group="Team 25")
 public class SimpleMotorTest extends Robot {
     private DcMotor motor;
 
@@ -25,7 +25,7 @@ public class SimpleMotorTest extends Robot {
     @Override
     public void init()
     {
-        motor = hardwareMap.dcMotor.get("claw");
+        motor = hardwareMap.dcMotor.get("rotate");
     }
 
     @Override

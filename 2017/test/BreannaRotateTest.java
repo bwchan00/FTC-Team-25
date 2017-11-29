@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import opmodes.VioletConstants;
+import team25core.DeadmanMotorTask;
 import team25core.FourWheelDirectDrivetrain;
 import team25core.GamepadTask;
 import team25core.MecanumWheelDriveTask;
@@ -23,8 +24,8 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 /**
  * FTC Team 25: Created by Breanna Chan on 11/1/17.
  */
-@TeleOp(name = "Rotate Test", group = "Team25")
-@Disabled
+@TeleOp(name = "Rotate Test")
+//@Disabled
 public class BreannaRotateTest extends Robot {
 
      /*
@@ -54,7 +55,7 @@ public class BreannaRotateTest extends Robot {
     }
 
     private DcMotor rotate;
-
+    private DeadmanMotorTask runSlideOutTask;
 
     private boolean lockout = false;
 
@@ -79,16 +80,14 @@ public class BreannaRotateTest extends Robot {
 
 
 
-        rotate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //rotate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //rotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
-
-        // Sets claw servos to open position
+        runSlideOutTask = new DeadmanMotorTask(this, rotate, 0.5, GamepadTask.GamepadNumber.GAMEPAD_2, DeadmanMotorTask.DeadmanButton.BUTTON_Y);
 
         // Allows for linear and slide motor to hold position when no button is pressed
 
-        rotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //rotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
 
@@ -135,6 +134,7 @@ public class BreannaRotateTest extends Robot {
         //controlLinear = new OneWheelDriveTask(this, linear, true);
 
         //this.addTask(controlLinear);
+        this.addTask(runSlideOutTask);
 
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_2) {
             public void handleEvent(RobotEvent e) {
