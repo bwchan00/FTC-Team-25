@@ -21,7 +21,7 @@ import team25core.RunToEncoderValueTask;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 /**
- * FTC Team 25: Created by Elizabeth Wu on 11/1/17.
+ * FTC Team 25: Created by Elizabeth Wu (updated by Breanna Chan and Bella Heinrichs) on 11/1/17.
  */
 @TeleOp(name = "Violet Teleop", group = "Team25")
 public class VioletTeleop extends Robot {
