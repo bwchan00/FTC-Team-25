@@ -50,15 +50,16 @@ public class VioletJewelAutonomous extends Robot {
     boolean flashOn = false;
     boolean pollOn = false;
 
-    private final int TICKS_PER_INCH = Violet.TICKS_PER_INCH;
-    private final int TICKS_PER_DEGREE = Violet.TICKS_PER_DEGREE;
+   // boolean pollOn = false;
+  
     private int turnMultiplier = -1;
     private int moveMultiplier = -1;
     private int color = 0;
     private int distance = 0;
     private int whichSide = 0;
     private int combo = 0;
-    private int liftJewel = 0;
+    private boolean liftJewelArm = false;
+    private boolean liftArmLater = false;
     private int isBlack = 0;
     private boolean firstSegment = false;
 
